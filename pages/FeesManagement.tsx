@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useEffect } from 'react';
 import { User, Student, PaymentMode, FeeStructure } from '../types';
 import { db, supabase } from '../supabase';
@@ -116,11 +115,13 @@ const FeesManagement: React.FC<FeesManagementProps> = ({ user }) => {
     if (!selectedStudent || !selectedQuarter || amountToPay <= 0) return;
     
     // REDIRECTION LOGIC
-    if (paymentMode === 'GOOGLE_PAY' || paymentMode === 'PHONE_PE') {
-      const upiLink = `upi://pay?pa=${schoolSettings?.school_upi_id || 'merchant@upi'}&pn=${encodeURIComponent(schoolSettings?.school_name || 'School')}&am=${amountToPay}&cu=INR`;
+    const masterUPI = schoolSettings?.school_upi_id || 'www.ayazsurti2000-1@okaxis';
+    const schoolName = schoolSettings?.school_name || 'Deen-E-Islam School';
+
+    if (paymentMode === 'GOOGLE_PAY' || paymentMode === 'PHONE_PE' || paymentMode === 'UPI') {
+      const upiLink = `upi://pay?pa=${masterUPI}&pn=${encodeURIComponent(schoolName)}&am=${amountToPay}&cu=INR&tn=${encodeURIComponent('Term Fee: ' + selectedQuarter)}`;
       window.location.href = upiLink;
     } else if (paymentMode === 'DEBIT_CARD' || paymentMode === 'CREDIT_CARD') {
-      // Simulate Bank Redirection
       window.open('https://www.sandbox.paypal.com/signin', '_blank');
     }
 
@@ -138,7 +139,7 @@ const FeesManagement: React.FC<FeesManagementProps> = ({ user }) => {
         mode: paymentMode
       });
       setShowSuccess(true);
-      createAuditLog(user, 'PAYMENT', 'Finance', `[${paymentMode}] Collected ₹${amountToPay} from ${selectedStudent.fullName} for ${selectedQuarter} (Ref: ${payerDetails || 'N/A'})`);
+      createAuditLog(user, 'PAYMENT', 'Finance', `[${paymentMode}] Collected ₹${amountToPay} from ${selectedStudent.fullName} via ${masterUPI}`);
       
       setSelectedStudent(null);
       setAmountToPay(0);
@@ -155,38 +156,17 @@ const FeesManagement: React.FC<FeesManagementProps> = ({ user }) => {
 
   return (
     <div className="space-y-8 pb-20 animate-in fade-in duration-500 relative">
-      {isSyncing && (
-        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[1100] animate-bounce">
-           <div className="bg-indigo-600 text-white px-6 py-2 rounded-full shadow-2xl flex items-center gap-3 border border-indigo-400">
-              <RefreshCw size={14} className="animate-spin" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-white">Registry Processing...</span>
-           </div>
-        </div>
-      )}
-
-      {showSuccess && (
-        <div className="fixed top-24 right-8 z-[1000] animate-in slide-in-from-right-8 duration-500">
-           <div className="bg-emerald-600 text-white px-8 py-5 rounded-[2rem] shadow-2xl flex items-center gap-4 border border-emerald-500/50 backdrop-blur-xl">
-              <CheckCircle2 size={24} strokeWidth={3} />
-              <div>
-                 <p className="font-black text-xs uppercase tracking-widest">Payment Cleared</p>
-                 <p className="text-[10px] font-bold text-emerald-100 uppercase mt-0.5">Ledger Updated Successfully</p>
-              </div>
-           </div>
-        </div>
-      )}
-
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight uppercase flex items-center gap-3">Collection Terminal <Globe className="text-indigo-600" /></h1>
-          <p className="text-slate-500 dark:text-slate-400 font-medium text-lg uppercase tracking-tight">Cloud-based payment gateway with smart filtering.</p>
+          <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight uppercase flex items-center gap-3">Payment Node <Globe className="text-indigo-600" /></h1>
+          <p className="text-slate-500 dark:text-slate-400 font-medium text-lg uppercase tracking-tight">Active Merchant: 9099711585</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-10">
         <div className="xl:col-span-1 space-y-6">
            <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-800">
-              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">Identity Recon</label>
+              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">Identity Fetch</label>
               <div className="relative mb-6">
                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
                  <input 
@@ -218,21 +198,17 @@ const FeesManagement: React.FC<FeesManagementProps> = ({ user }) => {
 
            <div className="bg-slate-900 rounded-[2.5rem] p-8 text-white shadow-2xl relative overflow-hidden group">
               <h3 className="font-black text-xl mb-6 uppercase tracking-tight flex items-center gap-3">
-                 <History size={20} className="text-indigo-400" /> Recent Activity
+                 <History size={20} className="text-indigo-400" /> Merchant Summary
               </h3>
-              <div className="space-y-4 max-h-[300px] overflow-y-auto custom-scrollbar pr-2">
-                 {ledger.slice(0, 8).map(l => {
-                   const studentInfo = students.find(s => s.id === l.student_id);
-                   return (
-                    <div key={l.id} className="flex items-center justify-between text-[10px] font-bold border-b border-white/5 pb-4 group/item">
-                        <div>
-                          <span className="text-indigo-400 uppercase block group-hover/item:text-white transition-colors">{l.receipt_no}</span>
-                          <span className="text-slate-500 text-[8px] uppercase">{studentInfo?.fullName || 'Synced'} • {l.date}</span>
-                        </div>
-                        <span className="text-emerald-400 font-black">₹{l.amount.toLocaleString('en-IN')}</span>
-                    </div>
-                   );
-                 })}
+              <div className="space-y-4">
+                 <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
+                    <p className="text-[8px] font-black text-indigo-400 uppercase mb-1">GPay/PhonePe</p>
+                    <p className="text-lg font-black tracking-widest">9099711585</p>
+                 </div>
+                 <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
+                    <p className="text-[8px] font-black text-indigo-400 uppercase mb-1">Master UPI ID</p>
+                    <p className="text-xs font-bold truncate">www.ayazsurti2000-1@okaxis</p>
+                 </div>
               </div>
            </div>
         </div>
@@ -264,7 +240,7 @@ const FeesManagement: React.FC<FeesManagementProps> = ({ user }) => {
                         </button>
                       )) : (
                         <div className="px-6 py-2 flex items-center gap-2 text-emerald-600 font-black text-[10px] uppercase">
-                           <CheckCircle2 size={14}/> Academic Year Settled
+                           <CheckCircle2 size={14}/> All Dues Cleared
                         </div>
                       )}
                    </div>
@@ -274,7 +250,7 @@ const FeesManagement: React.FC<FeesManagementProps> = ({ user }) => {
                   <form onSubmit={handleProcessPayment} className="p-10 space-y-10 flex-1 flex flex-col">
                     <div className="space-y-4 text-center">
                         <div className="flex flex-col items-center gap-1">
-                          <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.3em] mb-2">Liability for {selectedQuarter} (₹)</label>
+                          <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.3em] mb-2">Sync Liability: {selectedQuarter} (₹)</label>
                           <div className="relative max-w-md mx-auto">
                               <span className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 font-black text-3xl">₹</span>
                               <input type="number" required value={amountToPay || ''} onChange={e => setAmountToPay(parseInt(e.target.value) || 0)} className="w-full bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-indigo-500 rounded-[2.5rem] px-8 py-8 text-6xl font-black text-slate-900 dark:text-white text-center outline-none transition-all shadow-inner" placeholder="0" />
@@ -283,13 +259,13 @@ const FeesManagement: React.FC<FeesManagementProps> = ({ user }) => {
                     </div>
 
                     <div className="space-y-6">
-                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Verification Channel</label>
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Cloud Verification Method</label>
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                           {MODES.map(mode => (
                             <button 
                               key={mode.value}
                               type="button"
-                              onClick={() => { setPaymentMode(mode.value); setPayerDetails(''); }}
+                              onClick={() => setPaymentMode(mode.value)}
                               className={`flex flex-col items-center justify-center gap-3 px-4 py-6 rounded-2xl border-2 transition-all font-black text-[10px] uppercase tracking-widest text-center ${paymentMode === mode.value ? 'bg-indigo-600 border-indigo-600 text-white shadow-xl' : 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 text-slate-400 hover:border-indigo-100'}`}
                             >
                                 {mode.icon}
@@ -299,27 +275,10 @@ const FeesManagement: React.FC<FeesManagementProps> = ({ user }) => {
                         </div>
                     </div>
 
-                    {/* MODE SPECIFIC INPUTS */}
-                    {(paymentMode === 'UPI' || paymentMode === 'GOOGLE_PAY' || paymentMode === 'PHONE_PE') && (
-                        <div className="space-y-2 animate-in slide-in-from-top-2">
-                          <label className="text-[10px] font-black text-slate-400 uppercase ml-1 tracking-widest">Payer UPI ID (For Ledger tracking)</label>
-                          <div className="relative">
-                              <Zap className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-400" size={16}/>
-                              <input 
-                                type="text" 
-                                value={payerDetails} 
-                                onChange={e => setPayerDetails(e.target.value)} 
-                                placeholder="e.g., payer@upi" 
-                                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl pl-12 pr-4 py-4 font-bold text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500" 
-                              />
-                          </div>
-                        </div>
-                    )}
-
                     <div className="mt-auto">
                       <button type="submit" disabled={isProcessing || amountToPay <= 0} className="w-full py-7 bg-indigo-600 text-white font-black rounded-[2rem] shadow-2xl uppercase tracking-[0.3em] flex items-center justify-center gap-4 hover:-translate-y-1 transition-all disabled:opacity-50">
                           {isProcessing ? <Loader2 className="animate-spin" size={24} /> : (paymentMode === 'GOOGLE_PAY' || paymentMode === 'PHONE_PE' ? <ExternalLink size={24} /> : <ShieldCheck size={24} />)}
-                          {paymentMode === 'GOOGLE_PAY' ? 'Open Google Pay' : paymentMode === 'PHONE_PE' ? 'Open PhonePe' : `Commit ${selectedQuarter} Entry`}
+                          {paymentMode === 'GOOGLE_PAY' ? 'Open GPay App' : paymentMode === 'PHONE_PE' ? 'Open PhonePe App' : `Clear ${selectedQuarter} Balance`}
                       </button>
                     </div>
                   </form>
@@ -329,18 +288,17 @@ const FeesManagement: React.FC<FeesManagementProps> = ({ user }) => {
                         <CheckCircle2 size={48} />
                      </div>
                      <div>
-                        <h4 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">Identity Cleared</h4>
-                        <p className="text-slate-500 dark:text-slate-400 font-medium text-lg uppercase tracking-tight mt-2">All quarterly dues for this student have been settles in cloud.</p>
+                        <h4 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">Academic Status: PAID</h4>
+                        <p className="text-slate-500 dark:text-slate-400 font-medium text-lg uppercase tracking-tight mt-2">The student identity has no pending liabilities in the cloud ledger.</p>
                      </div>
-                     <button onClick={() => setSelectedStudent(null)} className="px-8 py-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-slate-200 transition-all">Search Another</button>
                   </div>
                 )}
              </div>
            ) : (
              <div className="bg-white/50 dark:bg-slate-900/50 rounded-[3rem] p-40 text-center border-4 border-dashed border-white/30 flex flex-col items-center justify-center h-full">
                 <QrCode size={64} className="text-slate-300 dark:text-slate-700 mb-6" />
-                <h3 className="text-3xl font-black text-slate-800 dark:text-white uppercase tracking-tighter leading-none mb-4">Identity Sync Needed</h3>
-                <p className="text-slate-500 dark:text-slate-400 font-medium max-w-sm mx-auto text-lg leading-relaxed uppercase tracking-tight">Search for a student to check and process pending academic liabilities.</p>
+                <h3 className="text-3xl font-black text-slate-800 dark:text-white uppercase tracking-tighter leading-none mb-4">Financial Sync</h3>
+                <p className="text-slate-500 dark:text-slate-400 font-medium max-w-sm mx-auto text-lg leading-relaxed uppercase tracking-tight">Select a student profile to initiate the direct payment gateway link.</p>
              </div>
            )}
         </div>

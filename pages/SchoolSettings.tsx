@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { User } from '../types';
 import { createAuditLog } from '../utils/auditLogger';
@@ -21,7 +20,10 @@ import {
   Building2,
   CreditCard,
   QrCode,
-  Zap
+  Zap,
+  Globe,
+  ExternalLink,
+  Shield
 } from 'lucide-react';
 
 interface SchoolSettingsProps { user: User; }
@@ -42,7 +44,8 @@ const SchoolSettings: React.FC<SchoolSettingsProps> = ({ user }) => {
     school_bank_name: '',
     school_account_no: '',
     school_ifsc: '',
-    school_upi_id: ''
+    school_upi_id: '',
+    school_payment_link: ''
   });
 
   const fetchBranding = async () => {
@@ -51,13 +54,14 @@ const SchoolSettings: React.FC<SchoolSettingsProps> = ({ user }) => {
       setFormData({
         school_name: settings.school_name || 'Deen-E-Islam School',
         school_address: settings.school_address || '',
-        school_contact: settings.school_contact || '',
-        school_email: settings.school_email || '',
+        school_contact: settings.school_contact || '9099711585',
+        school_email: settings.school_email || 'ayazsurti2000@gmail.com',
         school_logo: settings.school_logo || '',
         school_bank_name: settings.school_bank_name || '',
         school_account_no: settings.school_account_no || '',
         school_ifsc: settings.school_ifsc || '',
-        school_upi_id: settings.school_upi_id || ''
+        school_upi_id: settings.school_upi_id || 'www.ayazsurti2000-1@okaxis',
+        school_payment_link: settings.school_payment_link || ''
       });
     } catch (err) { 
       console.error("Identity Fetch Error:", err); 
@@ -142,7 +146,7 @@ const SchoolSettings: React.FC<SchoolSettingsProps> = ({ user }) => {
 
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-[1100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-           <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-10 max-sm w-full shadow-2xl text-center">
+           <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-10 max-sm w-full shadow-2xl text-center border border-slate-100 dark:border-slate-800">
               <div className="w-20 h-20 bg-rose-50 dark:bg-rose-900/20 text-rose-600 rounded-3xl flex items-center justify-center mb-6 mx-auto">
                  <AlertTriangle size={40} />
               </div>
@@ -191,48 +195,41 @@ const SchoolSettings: React.FC<SchoolSettingsProps> = ({ user }) => {
               <p className="text-[10px] text-slate-400 uppercase font-bold mt-1 text-center">Public Identity Token</p>
            </div>
 
-           <div className="bg-slate-900 rounded-[2.5rem] p-8 text-white shadow-2xl space-y-6">
-              <h4 className="font-black text-xs uppercase tracking-widest text-indigo-400 flex items-center gap-2"><Building2 size={14}/> Fiscal Gateway Setup</h4>
-              <div className="space-y-4">
+           <div className="bg-slate-900 rounded-[2.5rem] p-8 text-white shadow-2xl space-y-6 overflow-hidden relative group">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full -mr-16 -mt-16 group-hover:scale-110 transition-transform duration-700"></div>
+              <h4 className="font-black text-xs uppercase tracking-widest text-indigo-400 flex items-center gap-2 relative z-10"><Building2 size={14}/> Fiscal Gateway Setup</h4>
+              <div className="space-y-4 relative z-10">
                  <div className="space-y-1">
-                    <label className="text-[8px] font-black text-slate-500 uppercase">School UPI ID (For GPay/PhonePe)</label>
-                    <input 
-                      type="text" 
-                      value={formData.school_upi_id}
-                      onChange={e => setFormData({...formData, school_upi_id: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-indigo-500" 
-                      placeholder="merchant@upi" 
-                    />
+                    <label className="text-[8px] font-black text-slate-500 uppercase">Primary UPI ID (Master Wallet)</label>
+                    <div className="relative">
+                      <Zap className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-500" size={14} />
+                      <input 
+                        type="text" 
+                        value={formData.school_upi_id}
+                        onChange={e => setFormData({...formData, school_upi_id: e.target.value})}
+                        className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-xs font-bold outline-none focus:border-indigo-500 text-indigo-200" 
+                        placeholder="www.ayazsurti2000-1@okaxis" 
+                      />
+                    </div>
                  </div>
                  <div className="space-y-1">
-                    <label className="text-[8px] font-black text-slate-500 uppercase">Bank Name</label>
-                    <input 
-                      type="text" 
-                      value={formData.school_bank_name}
-                      onChange={e => setFormData({...formData, school_bank_name: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-indigo-500" 
-                      placeholder="e.g., STATE BANK OF INDIA" 
-                    />
+                    <label className="text-[8px] font-black text-slate-500 uppercase">GPay/PhonePe Phone Connection</label>
+                    <div className="relative">
+                      <Smartphone className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-500" size={14} />
+                      <input 
+                        type="text" 
+                        value={formData.school_contact}
+                        onChange={e => setFormData({...formData, school_contact: e.target.value})}
+                        className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-xs font-bold outline-none focus:border-indigo-500 text-indigo-200" 
+                        placeholder="9099711585" 
+                      />
+                    </div>
                  </div>
-                 <div className="space-y-1">
-                    <label className="text-[8px] font-black text-slate-500 uppercase">Account Number</label>
-                    <input 
-                      type="text" 
-                      value={formData.school_account_no}
-                      onChange={e => setFormData({...formData, school_account_no: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-indigo-500" 
-                      placeholder="0000XXXXXXXX" 
-                    />
-                 </div>
-                 <div className="space-y-1">
-                    <label className="text-[8px] font-black text-slate-500 uppercase">IFSC Code</label>
-                    <input 
-                      type="text" 
-                      value={formData.school_ifsc}
-                      onChange={e => setFormData({...formData, school_ifsc: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-indigo-500 uppercase" 
-                      placeholder="SBIN0001234" 
-                    />
+                 <div className="pt-2">
+                    <div className="p-3 bg-white/5 rounded-xl border border-white/5 flex items-center gap-3">
+                       <Shield size={16} className="text-emerald-500" />
+                       <p className="text-[8px] font-bold text-slate-400 uppercase leading-tight">Secure payments will be routed directly to this UPI ID on student devices.</p>
+                    </div>
                  </div>
               </div>
            </div>
@@ -290,7 +287,7 @@ const SchoolSettings: React.FC<SchoolSettingsProps> = ({ user }) => {
                         value={formData.school_contact} 
                         onChange={e => setFormData({...formData, school_contact: e.target.value})}
                         className="w-full bg-slate-50 dark:bg-slate-800 rounded-2xl pl-14 pr-6 py-4 font-bold text-slate-800 dark:text-white outline-none border-2 border-transparent focus:border-indigo-500"
-                        placeholder="+91-XXXXXXXXXX"
+                        placeholder="9099711585"
                        />
                     </div>
                  </div>
@@ -312,5 +309,9 @@ const SchoolSettings: React.FC<SchoolSettingsProps> = ({ user }) => {
     </div>
   );
 };
+
+const Smartphone = ({ size, className }: { size: number, className?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>
+);
 
 export default SchoolSettings;
