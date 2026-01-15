@@ -1,0 +1,110 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduManage Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              indigo: {
+                50: '#f5f7ff',
+                100: '#ebf0fe',
+                200: '#ced9fd',
+                300: '#b1c2fb',
+                400: '#7695f8',
+                500: '#3b67f5',
+                600: '#355ddd',
+                700: '#2c4eb8',
+                800: '#233e93',
+                900: '#1d3378',
+                950: '#111e47',
+              },
+              cyber: {
+                cyan: '#06b6d4',
+                indigo: '#6366f1',
+                rose: '#f43f5e'
+              }
+            },
+            animation: {
+              'shake': 'shake 0.5s cubic-bezier(.36,.07,.19,.97) both',
+              'neural-pulse': 'neural-pulse 4s infinite ease-in-out',
+              'scan-line-fast': 'scan-line-fast 1s linear infinite',
+              'core-rotate-slow': 'spin 15s linear infinite',
+              'core-rotate-fast': 'spin 3s linear infinite',
+              'biometric-pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            },
+            keyframes: {
+              shake: {
+                '10%, 90%': { transform: 'translate3d(-1px, 0, 0)' },
+                '20%, 80%': { transform: 'translate3d(2px, 0, 0)' },
+                '30%, 50%, 70%': { transform: 'translate3d(-4px, 0, 0)' },
+                '40%, 60%': { transform: 'translate3d(4px, 0, 0)' },
+              },
+              'neural-pulse': {
+                '0%, 100%': { opacity: 0.1, transform: 'scale(1)' },
+                '50%': { opacity: 0.3, transform: 'scale(1.3)' },
+              },
+              'scan-line-fast': {
+                '0%': { transform: 'translateY(-100%)' },
+                '100%': { transform: 'translateY(1000%)' },
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { 
+          font-family: 'Inter', sans-serif; 
+          overflow-x: hidden; 
+          background-color: white;
+        }
+
+        .neural-grid-white {
+          background-image: 
+            radial-gradient(circle at 1px 1px, rgba(99, 102, 241, 0.1) 1px, transparent 0);
+          background-size: 30px 30px;
+        }
+
+        .frosted-neural-glass {
+          background: rgba(255, 255, 255, 0.9);
+          backdrop-filter: blur(25px);
+          border: 1px solid rgba(99, 102, 241, 0.15);
+          box-shadow: 0 25px 60px -15px rgba(99, 102, 241, 0.12);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "path": "https://esm.sh/path@^0.12.7",
+    "url": "https://esm.sh/url@^0.11.4",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
+    "recharts": "https://esm.sh/recharts@^3.6.0",
+    "vite": "https://esm.sh/vite@^7.3.1",
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@^2.90.1",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.12.0",
+    "jsqr": "https://esm.sh/jsqr@^1.4.0"
+  }
+}
+</script>
+</head>
+<body class="bg-white text-slate-900">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+</body>
+</html>

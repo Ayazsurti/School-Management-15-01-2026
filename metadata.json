@@ -1,0 +1,10 @@
+{
+  "name": "Copy of EduManage Pro",
+  "appId": "com.deen.school",
+  "description": "A comprehensive cloud-synchronized school management platform featuring instant data access via QR scanning, identity verification, and cross-role collaboration.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ]
+}
